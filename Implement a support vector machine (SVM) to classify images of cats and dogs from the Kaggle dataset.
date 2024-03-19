@@ -1,0 +1,45 @@
+``python
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
+from sklearn import preprocessing
+from skimage.io import imread
+from skimage.transform import resize
+import os
+
+# Load data
+def load_data(data_dir):
+    X = []
+    y = []
+    for label, category in enumerate(['cats', 'dogs']):
+        category_dir = os.path.join(data_dir, category)
+        for file_name in os.listdir(category_dir):
+            image_path = os.path.join(category_dir, file_name)
+            image = imread(image_path)
+            image_resized = resize(image, (100, 100))  # Resize image to a fixed size
+            X.append(image_resized.flatten())  # Flatten image to a 1D array
+            y.append(label)  # Assign label to image
+    return np.array(X), np.array(y)
+
+# Data directory
+data_dir = 'path/to/your/dataset'
+
+# Load and preprocess data
+X, y = load_data(data_dir)
+X = preprocessing.scale(X)  # Standardize features by removing the mean and scaling to unit variance
+
+# Split data into train and test sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Train SVM model
+svm_model = SVC(kernel='linear')
+svm_model.fit(X_train, y_train)
+
+# Predict
+y_pred = svm_model.predict(X_test)
+
+# Evaluate
+accuracy = accuracy_score(y_test, y_pred)
+print("Accuracy:", accuracy)
+```
